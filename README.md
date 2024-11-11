@@ -52,6 +52,12 @@ Based on [tadfisher's pia-vpn.nix](https://github.com/tadfisher/flake/blob/f6f9c
     To = ''${wg_ip}/32
     Priority = 1000
 
+    # if port forwarding is required, make an exception for that service
+    # as it's not accessible from inside the VPN
+    [RoutingPolicyRule]
+    To = ''${meta_ip}/32
+    Priority = 1000
+
     [RoutingPolicyRule]
     To = 0.0.0.0/0
     Priority = 2000
