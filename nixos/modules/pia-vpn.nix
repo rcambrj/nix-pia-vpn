@@ -193,7 +193,7 @@ with lib;
 
         echo Fetching regions...
         serverlist='https://serverlist.piaservers.net/vpninfo/servers/v4'
-        allregions=$((curl --no-progress-meter "$serverlist" || true) | head -1)
+        allregions=$((curl --no-progress-meter -m 5 "$serverlist" || true) | head -1)
 
         region="$(echo $allregions |
                     jq --arg REGION_ID "${cfg.region}" -r '.regions[] | select(.id==$REGION_ID)')"
@@ -220,7 +220,8 @@ with lib;
         echo "$region" > $STATE_DIRECTORY/region.json
 
         echo Fetching token...
-        tokenResponse="$(curl --no-progress-meter -u "$PIA_USER:$PIA_PASS" \
+        tokenResponse="$(curl --no-progress-meter -m 5 \
+          -u "$PIA_USER:$PIA_PASS" \
           --connect-to "$meta_hostname::$meta_ip" \
           --cacert "${cfg.certificateFile}" \
           "https://$meta_hostname/authv3/generateToken" || true)"
@@ -233,7 +234,7 @@ with lib;
         echo Connecting to the PIA WireGuard API on $wg_ip...
         privateKey="$(wg genkey)"
         publicKey="$(echo "$privateKey" | wg pubkey)"
-        json="$(curl --no-progress-meter -G \
+        json="$(curl --no-progress-meter -m 5 -G \
           --connect-to "$wg_hostname::$wg_ip:" \
           --cacert "${cfg.certificateFile}" \
           --data-urlencode "pt=''${token}" \
@@ -343,7 +344,8 @@ with lib;
         gateway="$(echo $wg | jq -r '.server_vip')"
 
         echo Fetching token...
-        tokenResponse="$(curl --no-progress-meter -u "$PIA_USER:$PIA_PASS" \
+        tokenResponse="$(curl --no-progress-meter -m 5 \
+          -u "$PIA_USER:$PIA_PASS" \
           --connect-to "$meta_hostname::$meta_ip" \
           --cacert "${cfg.certificateFile}" \
           "https://$meta_hostname/authv3/generateToken" || true)"
@@ -381,7 +383,7 @@ with lib;
         sleep 10
 
         while true; do
-          response="$(curl --no-progress-meter -G -m 5 \
+          response="$(curl --no-progress-meter -m 5 -G \
             --interface ${cfg.interface} \
             --connect-to "$wg_hostname::$gateway:" \
             --cacert "${cfg.certificateFile}" \
