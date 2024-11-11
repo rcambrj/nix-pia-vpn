@@ -219,7 +219,7 @@ with lib;
         wg_hostname="$(echo $region | jq -r '.servers.wg[0].cn')"
         echo "$region" > $STATE_DIRECTORY/region.json
 
-        echo Fetching token...
+        echo Fetching token from $meta_ip...
         tokenResponse="$(curl --no-progress-meter -m 5 \
           -u "$PIA_USER:$PIA_PASS" \
           --connect-to "$meta_hostname::$meta_ip" \
@@ -343,7 +343,7 @@ with lib;
         wg_hostname="$(echo $region | jq -r '.servers.wg[0].cn')"
         gateway="$(echo $wg | jq -r '.server_vip')"
 
-        echo Fetching token...
+        echo Fetching token from $meta_ip...
         tokenResponse="$(curl --no-progress-meter -m 5 \
           -u "$PIA_USER:$PIA_PASS" \
           --connect-to "$meta_hostname::$meta_ip" \
@@ -355,7 +355,7 @@ with lib;
         fi
         token="$(echo "$tokenResponse" | jq -r '.token')"
 
-        echo "Fetching port forwarding configuration..."
+        echo "Fetching port forwarding configuration from $gateway..."
         pfconfig="$(curl --no-progress-meter -m 5 \
           --interface ${cfg.interface} \
           --connect-to "$wg_hostname::$gateway:" \
@@ -377,10 +377,11 @@ with lib;
         port="$(echo "$payload" | base64 -d | jq -r '.port')"
         expires="$(echo "$payload" | base64 -d | jq -r '.expires_at')"
 
-        echo "Forwarded port $port. Forwarding will expire at $(date --date "$expires")."
+        echo "Port forwarding configuration acquired: port $port expires at $(date --date "$expires")."
 
         systemd-notify --ready
-        sleep 10
+
+        echo "Enabling port forwarding..."
 
         while true; do
           response="$(curl --no-progress-meter -m 5 -G \
@@ -397,6 +398,7 @@ with lib;
           echo "Bound port $port. Forwarding will expire at $(date --date="$expires")."
           ${cfg.portForward.script}
           sleep 900
+          echo "Checking port forwarding..."
         done
       '';
     };
