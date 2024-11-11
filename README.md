@@ -36,7 +36,7 @@ Based on [tadfisher's pia-vpn.nix](https://github.com/tadfisher/flake/blob/f6f9c
 }
 ```
 
-### Set VPN as default route
+### [optional] Set VPN as default route
 
 ```
 # configuration.nix
@@ -69,7 +69,7 @@ Based on [tadfisher's pia-vpn.nix](https://github.com/tadfisher/flake/blob/f6f9c
   '';
 ```
 
-### Configure Transmission with forwarded port
+### [optional] Configure Transmission with forwarded port
 
 ```
 # transmission-rpc.env
@@ -88,7 +88,7 @@ TR_AUTH=username:password
   };
 ```
 
-### Bring up services when VPN is up (and tear them down when it's not)
+### [optional] Bring up services when VPN is up (and tear them down when it's not)
 
 ```
 # configuration.nix
